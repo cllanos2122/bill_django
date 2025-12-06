@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Editar Factura #{{ factura.id }}</h2>
+
+<form method="post" id="factura-form">
+    {% csrf_token %}
+    
+    <!-- Cliente -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label>Cliente existente:</label>
+                <select name="cliente" class="form-control">
+                    <option value="">-- Seleccionar --</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}" {% if cliente.id == factura.cliente.id %}selected{% endif %}>
+                            {{ cliente.nombre }}{% if cliente.email %} ({{ cliente.email }}){% endif %}
+                        </option>
+       	<div class="mb-3">
+    		<label>Documento de Identidad</label>
+    		<input type="text" name="documento_identidad" class="form-control" 
+           		value="{{ factura.cliente.documento_identidad|default:'' }}" 
+           		placeholder="Ej: CC-123456789">
+		</div>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado -->
+    <div class="mb-3">
+        <label>Estado</label>
+        <select name="estado" class="form-control">
+            <option value="pendiente" {% if factura.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="pagada" {% if factura.estado == 'pagada' %}selected{% endif %}>Pagada</option>
+            <option value="cancelada" {% if factura.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+        </select>
+    </div>
+
+    <!-- Impuestos -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Impuestos</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label>IVA (%)</label>
+                    <input type="number" name="iva_porcentaje" class="form-control" 
+                           value="{{ factura.iva_porcentaje }}" step="0.01" min="0">
+                </div>
+                <div class="col-md-4">
+                    <label>Impuesto al Consumo (%)</label>
+                    <input type="number" name="imp_consumo_porcentaje" class="form-control" 
+                           value="{{ factura.imp_consumo_porcentaje }}" step="0.01" min="0">
+                </div>
+                <div class="col-md-4">
+                    <label>Retefuente (%)</label>
+                    <input type="number" name="retefuente_porcentaje" class="form-control" 
+                           value="{{ factura.retefuente_porcentaje }}" step="0.01" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Productos</h5>
+        </div>
+        <div class="card-body">
+            <div id="productos-container">
+                {% for detalle in factura.detalles.all %}
+                <div class="producto-item row mb-3">
+                    <div class="col-md-5">
+                        <select name="producto_id" class="form-control producto-select" onchange="checkNuevoProducto(this)">
+                            <option value="">-- Seleccionar producto --</option>
+                            {% for producto in productos %}
+                                <option value="{{ producto.id }}" {% if producto.id == detalle.producto.id %}selected{% endif %}>
+                                    {{ producto.nombre }} - ${{ producto.precio }}
+                                </option>
+                            {% endfor %}
+                            <option value="nuevo">+ Crear nuevo producto</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="cantidad" class="form-control cantidad-input" value="{{ detalle.cantidad }}" min="1">
+                    </div>
+                    <div class="col-md-3 nuevo-producto-fields" style="display:none;">
+                        <input type="text" name="nuevo_producto_nombre" class="form-control" placeholder="Nombre del producto">
+                        <input type="number" name="nuevo_producto_precio" class="form-control mt-1" placeholder="Precio" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeProducto(this)">–</button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="producto-item row mb-3">
+                    <div class="col-md-5">
+                        <select name="producto_id" class="form-control producto-select" onchange="checkNuevoProducto(this)">
+                            <option value="">-- Seleccionar producto --</option>
+                            {% for producto in productos %}
+                                <option value="{{ producto.id }}">{{ producto.nombre }} - ${{ producto.precio }}</option>
+                            {% endfor %}
+                            <option value="nuevo">+ Crear nuevo producto</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="cantidad" class="form-control cantidad-input" value="1" min="1">
+                    </div>
+                    <div class="col-md-3 nuevo-producto-fields" style="display:none;">
+                        <input type="text" name="nuevo_producto_nombre" class="form-control" placeholder="Nombre del producto">
+                        <input type="number" name="nuevo_producto_precio" class="form-control mt-1" placeholder="Precio" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeProducto(this)">–</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addProducto()">+ Agregar producto</button>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Actualizar Factura</button>
+    <a href="{% url 'factura:factura_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+// Mismo script que en factura_form.html
+function checkNuevoProducto(select) {
+    const row = select.closest('.producto-item');
+    const nuevoFields = row.querySelector('.nuevo-producto-fields');
+    if (select.value === 'nuevo') {
+        nuevoFields.style.display = 'block';
+    } else {
+        nuevoFields.style.display = 'none';
+        const hiddenInput = row.querySelector('input[name="producto_id_hidden"]');
+        if (!hiddenInput) {
+            const newHidden = document.createElement('input');
+            newHidden.type = 'hidden';
+            newHidden.name = 'producto_id_hidden';
+            newHidden.value = select.value;
+            row.appendChild(newHidden);
+        } else {
+            hiddenInput.value = select.value;
+        }
+    }
+}
+
+function addProducto() {
+    const container = document.getElementById('productos-container');
+    const firstItem = container.firstElementChild.cloneNode(true);
+    const select = firstItem.querySelector('select');
+    select.value = '';
+    const cantidad = firstItem.querySelector('[name="cantidad"]');
+    cantidad.value = 1;
+    const nuevoFields = firstItem.querySelector('.nuevo-producto-fields');
+    nuevoFields.style.display = 'none';
+    nuevoFields.querySelector('[name="nuevo_producto_nombre"]').value = '';
+    nuevoFields.querySelector('[name="nuevo_producto_precio"]').value = '';
+    container.appendChild(firstItem);
+}
+
+function removeProducto(btn) {
+    const items = document.querySelectorAll('.producto-item');
+    if (items.length > 1) {
+        btn.closest('.producto-item').remove();
+    }
+}
+</script>
+{% endblock %}

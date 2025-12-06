@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Reporte de Ventas</h2>
+<div class="alert alert-success">
+    <h4>Total de ventas: <strong>${{ total_ventas }}</strong></h4>
+</div>
+
+<div class="table-responsive">
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Factura</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Subtotal</th>
+                <th>IVA</th>
+                <th>Total</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for factura in facturas %}
+            <tr>
+                <td>{{ factura.id }}</td>
+                <td>{{ factura.cliente.nombre }}</td>
+                <td>{{ factura.fecha|date:"d/m/Y" }}</td>
+                <td>${{ factura.subtotal }}</td>
+                <td>${{ factura.iva_valor }}</td>
+                <td><strong>${{ factura.total_con_impuestos }}</strong></td>
+                <td>
+                    {% if factura.estado == 'pagada' %}
+                        <span class="badge bg-success">{{ factura.get_estado_display }}</span>
+                    {% elif factura.estado == 'pendiente' %}
+                        <span class="badge bg-warning">{{ factura.get_estado_display }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ factura.get_estado_display }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No hay facturas registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Configuración de la Empresa</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Nombre de la Empresa *</label>
+                {{ form.nombre }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">NIT *</label>
+                {{ form.nit }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Dirección *</label>
+                {{ form.direccion }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Teléfono *</label>
+                {{ form.telefono }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email de Facturación *</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Logo de la Empresa</label>
+                {{ form.logo }}
+                <small class="form-text text-muted">Formatos soportados: JPG, PNG</small>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+</form>
+{% endblock %}

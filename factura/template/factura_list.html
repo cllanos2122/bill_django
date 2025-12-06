@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Mis Facturas</h2>
+<table class="table">
+    <thead><tr><th>ID</th><th>Cliente</th><th>Fecha</th><th>Total con IVA</th><th>Acciones</th></tr></thead>
+    <tbody>
+    {% for f in facturas %}
+        <tr>
+            <td>{{ f.id }}</td>
+            <td>{{ f.cliente.nombre }}</td>
+            <td>{{ f.fecha|date:"d/m/Y" }}</td>
+            <td>${{ f.total_con_iva }}</td>
+            <td><a href="{% url 'facturacion_app:ver_factura_pdf' f.id %}" class="btn btn-sm btn-outline-primary">PDF</a></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5">No hay facturas.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

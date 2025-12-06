@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% if factura %}Editar Factura{% else %}Nueva Factura{% endif %}</h2>
+
+<form method="post" id="factura-form">
+    {% csrf_token %}
+    
+    <!-- Sección: Cliente -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="cliente-select">Seleccionar cliente existente:</label>
+                <select id="cliente-select" class="form-control" onchange="toggleNuevoCliente()">
+                    <option value="">-- Seleccionar --</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}">{{ cliente.nombre }}{% if cliente.email %} ({{ cliente.email }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="cliente" id="cliente-id">
+            </div>
+
+            <div id="nuevo-cliente" style="display:none; margin-top: 20px; padding: 15px; border: 1px dashed #ccc;">
+                <h6>Nuevo cliente</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Nombre *</label>
+                        <input type="text" name="nuevo_cliente_nombre" class="form-control" id="nuevo_cliente_nombre">
+                    </div>
+                    <div class="col-md-6">
+        		<label>Documento de Identidad</label>
+        		<input type="text" name="nuevo_cliente_documento" class="form-control" placeholder="Ej: CC-123456789">
+    		   </div>
+		</div>	
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        <input type="email" name="nuevo_cliente_email" class="form-control">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label>Teléfono</label>
+                        <input type="text" name="nuevo_cliente_telefono" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Dirección</label>
+                        <input type="text" name="nuevo_cliente_direccion" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleNuevoCliente()">
+                + Crear nuevo cliente
+            </button>
+        </div>
+    </div>
+
+    <!-- Sección: Productos -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Productos</h5>
+        </div>
+        <div class="card-body">
+            <div id="productos-container">
+                <div class="producto-item row mb-3">
+                    <div class="col-md-5">
+                        <select name="producto_id" class="form-control producto-select" onchange="checkNuevoProducto(this)">
+                            <option value="">-- Seleccionar producto --</option>
+                            {% for producto in productos %}
+                                <option value="{{ producto.id }}">{{ producto.nombre }} - ${{ producto.precio }}</option>
+                            {% endfor %}
+                            <option value="nuevo">+ Crear nuevo producto</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="cantidad" class="form-control cantidad-input" value="1" min="1">
+                    </div>
+                    <div class="col-md-3 nuevo-producto-fields" style="display:none;">
+                        <input type="text" name="nuevo_producto_nombre" class="form-control" placeholder="Nombre del producto">
+                        <input type="number" name="nuevo_producto_precio" class="form-control mt-1" placeholder="Precio" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeProducto(this)">–</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addProducto()">+ Agregar producto</button>
+        </div>
+    </div>
+
+	<!-- Sección: Impuestos -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Impuestos</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <label>IVA (%)</label>
+                <input type="number" name="iva_porcentaje" class="form-control" value="21.00" step="0.01" min="0">
+            </div>
+            <div class="col-md-4">
+                <label>Impuesto al Consumo (%)</label>
+                <input type="number" name="imp_consumo_porcentaje" class="form-control" value="0.00" step="0.01" min="0">
+            </div>
+            <div class="col-md-4">
+                <label>Retefuente (%)</label>
+                <input type="number" name="retefuente_porcentaje" class="form-control" value="0.00" step="0.01" min="0">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Opciones adicionales -->
+    <div class="mb-3 form-check">
+        <input type="checkbox" name="enviar_email" id="enviar_email" class="form-check-input">
+        <label for="enviar_email" class="form-check-label">
+            Enviar factura por email al cliente (si tiene email)
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear Factura</button>
+    <a href="{% url 'factura:factura_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+function toggleNuevoCliente() {
+    const select = document.getElementById('cliente-select');
+    const nuevoCliente = document.getElementById('nuevo-cliente');
+    const clienteId = document.getElementById('cliente-id');
+    
+    if (select.value === '') {
+        nuevoCliente.style.display = 'block';
+        clienteId.value = '';
+    } else {
+        nuevoCliente.style.display = 'none';
+        clienteId.value = select.value;
+    }
+}
+
+function checkNuevoProducto(select) {
+    const row = select.closest('.producto-item');
+    const nuevoFields = row.querySelector('.nuevo-producto-fields');
+    if (select.value === 'nuevo') {
+        nuevoFields.style.display = 'block';
+        // Limpiar campos
+        nuevoFields.querySelector('[name="nuevo_producto_nombre"]').value = '';
+        nuevoFields.querySelector('[name="nuevo_producto_precio"]').value = '';
+    } else {
+        nuevoFields.style.display = 'none';
+        // Asignar ID del producto seleccionado
+        const inputs = row.querySelectorAll('input[name="producto_id_hidden"]');
+        if (inputs.length === 0) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'producto_id_hidden';
+            row.appendChild(hiddenInput);
+        }
+        row.querySelector('input[name="producto_id_hidden"]').value = select.value;
+    }
+}
+
+function addProducto() {
+    const container = document.getElementById('productos-container');
+    const firstItem = container.firstElementChild.cloneNode(true);
+    // Resetear valores
+    const select = firstItem.querySelector('select');
+    select.value = '';
+    const cantidad = firstItem.querySelector('[name="cantidad"]');
+    cantidad.value = 1;
+    const nuevoFields = firstItem.querySelector('.nuevo-producto-fields');
+    nuevoFields.style.display = 'none';
+    nuevoFields.querySelector('[name="nuevo_producto_nombre"]').value = '';
+    nuevoFields.querySelector('[name="nuevo_producto_precio"]').value = '';
+    container.appendChild(firstItem);
+}
+
+function removeProducto(btn) {
+    const items = document.querySelectorAll('.producto-item');
+    if (items.length > 1) {
+        btn.closest('.producto-item').remove();
+    }
+}
+</script>
+{% endblock %}

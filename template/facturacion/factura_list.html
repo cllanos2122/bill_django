@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mis Facturas</h2>
+    <a href="{% url 'factura:crear_factura' %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nueva Factura
+    </a>
+</div>
+
+{% if facturas %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for factura in facturas %}
+            <tr>
+                <td>{{ factura.id }}</td>
+                <td>{{ factura.cliente.nombre }}</td>
+                <td>{{ factura.fecha|date:"d/m/Y H:i" }}</td>
+                <td><strong>${{ factura.total_con_impuestos }}</strong></td>
+                <td>
+                    {% if factura.estado == 'pagada' %}
+                        <span class="badge bg-success">Pagada</span>
+                    {% elif factura.estado == 'pendiente' %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% else %}
+                        <span class="badge bg-danger">Cancelada</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <!-- ✅ BOTONES DENTRO DEL BUCLE Y SIN CONDICIONES OCULTAS -->
+                    <a href="{% url 'factura:ver_factura_pdf' factura.id %}" 
+                       class="btn btn-sm btn-outline-primary me-1" 
+                       title="Ver PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    <a href="{% url 'factura:descargar_factura_xml' factura.id %}" 
+                       class="btn btn-sm btn-outline-success me-1" 
+                       title="Descargar XML">
+                        <i class="fas fa-file-code"></i>
+                    </a>
+                    <a href="{% url 'factura:editar_factura' factura.id %}" 
+                       class="btn btn-sm btn-outline-warning" 
+                       title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    <i class="fas fa-file-invoice fa-2x mb-3"></i>
+    <h4>No hay facturas registradas</h4>
+    <p>Crea tu primera factura haciendo clic en el botón de arriba.</p>
+</div>
+{% endif %}
+{% endblock %}

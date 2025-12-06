@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Clientes</h2>
+
+<!-- Botón para abrir modal de nuevo cliente -->
+<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#clienteModal">
+    <i class="fas fa-plus me-1"></i>Nuevo Cliente
+</button>
+
+<!-- Tabla de clientes -->
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo Documento</th> 
+                <th>Documento de identidad</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente.nombre }}</td>
+                <td>{{ cliente.get_tipo_documento_display }}</td>
+                <td>{{ cliente.documento_identidad|default:"-" }}</td>
+                <td>{{ cliente.email|default:"-" }}</td>
+                <td>{{ cliente.telefono|default:"-" }}</td>
+                <td>{{ cliente.direccion|default:"-"|truncatewords:8 }}</td>
+                <td>
+                    <a href="{% url 'factura:editar_cliente' cliente.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'factura:eliminar_cliente' cliente.id %}" class="btn btn-sm btn-outline-danger" 
+                       onclick="return confirm('¿Eliminar cliente {{ cliente.nombre }}?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No hay clientes registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para nuevo cliente (igual que antes) -->
+<div class="modal fade" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'factura:cliente_list' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Documento *</label>
+                        <select name="tipo_documento" class="form-control" required>
+                            <option value="CC">Cédula de Ciudadanía</option>
+                            <option value="CE">Cédula de Extranjería</option>
+                            <option value="NIT">NIT</option>
+                            <option value="PASAPORTE">Pasaporte</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Documento de Identidad *</label>
+                        <input type="text" name="documento_identidad" class="form-control" 
+                               placeholder="Ej: CC-123456789" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" name="direccion" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

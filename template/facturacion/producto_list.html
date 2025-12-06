@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Productos</h2>
+
+<!-- Botón para abrir modal de nuevo producto -->
+<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#productoModal">
+    <i class="fas fa-plus me-1"></i>Nuevo Producto
+</button>
+
+<!-- Tabla de productos -->
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.descripcion|default:"-"|truncatewords:10 }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>
+                    <a href="{% url 'factura:editar_producto' producto.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'factura:eliminar_producto' producto.id %}" class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('¿Eliminar producto {{ producto.nombre }}?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No hay productos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para crear producto -->
+<div class="modal fade" id="productoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        {{ form.descripcion }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio *</label>
+                        {{ form.precio }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

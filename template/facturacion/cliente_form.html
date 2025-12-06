@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{% if cliente %}Editar Cliente{% else %}Nuevo Cliente{% endif %}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Nombre *</label>
+                {{ form.nombre }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Documento *</label>
+                {{ form.tipo_documento }}
+                <small class="form-text text-muted">Seleccione el tipo de documento de identidad</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Documento de Identidad *</label>
+                {{ form.documento_identidad }}
+                <small class="form-text text-muted">Ej: CC-123456789, NIT-901234567-8</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                {{ form.telefono }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                {{ form.direccion }}
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">
+        {% if cliente %}Actualizar Cliente{% else %}Crear Cliente{% endif %}
+    </button>
+    <a href="{% url 'factura:cliente_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
