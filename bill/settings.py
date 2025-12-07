@@ -102,6 +102,14 @@ WSGI_APPLICATION = 'bill.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+#DATABASE EN RENDER
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3'
+    )
+}
+
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
@@ -110,16 +118,16 @@ WSGI_APPLICATION = 'bill.wsgi.application'
 # }
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'facturacion_db',
-        'USER': 'huellitas',
-        'PASSWORD': 'siaddhh',  # Cambia esto
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'facturacion_db',
+#         'USER': 'huellitas',
+#         'PASSWORD': 'siaddhh',  # Cambia esto
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
