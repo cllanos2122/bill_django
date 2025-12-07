@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: bill-django-app
+    runtime: python
+    region: oregon  # o la región que uses
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn bill.wsgi"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bill-db
+          property: connectionString
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "bill-django-1.onrender.com"
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: "admin"
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: "admin@example.com"
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: "il0ginS21"
+
+	healthCheckPath: /
+    autoDeploy: true
+    # Ejecutar tras cada despliegue
+    afterDeployHook: |
+      python manage.py migrate --noinput
+      python initialize.py
+databases:
+  - name: bill-db
+    databaseName: bill_django_db
+    region: oregon
