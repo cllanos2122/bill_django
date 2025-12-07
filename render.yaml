@@ -31,6 +31,6 @@ services:
       python manage.py migrate --noinput
       python initialize.py
 databases:
-  - name: bill-db
-    databaseName: bill_django_db
+  - name: bill_db
+    databaseName: bill_db
     region: oregon
