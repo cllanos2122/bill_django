@@ -117,17 +117,7 @@ DATABASES = {
 #     }
 # }
 
-# Database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'facturacion_db',
-#         'USER': 'huellitas',
-#         'PASSWORD': 'siaddhh',  # Cambia esto
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
+
 
 
 # Password validation
