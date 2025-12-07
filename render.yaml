@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: bill-django-app
+    name: bill_django
     runtime: python
     region: oregon  # o la región que uses
     env: python
