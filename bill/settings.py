@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+
+
+# Esta línea fuerza a cargar DATABASE_URL desde .env si existe
+os.environ.setdefault('DATABASE_URL', config('DATABASE_URL', default=''))
+
 import dj_database_url
 #from pathlib import Path
-
 
 # LOGIN_URL = '/login/'
 # LOGIN_REDIRECT_URL = '/login/'  # Después de login, redirige a la lista de facturas
