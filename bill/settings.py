@@ -48,9 +48,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 #ALLOWED_HOSTS = []
 
-#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.herokuapp.com,localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '.herokuapp.com,localhost,127.0.0.1').split(',')]
+#ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '.herokuapp.com,localhost,127.0.0.1').split(',')]
 
 # Application definition
 
