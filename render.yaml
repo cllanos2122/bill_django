@@ -2,12 +2,14 @@ services:
   - type: web
     name: bill_django
     runtime: python
-    region: oregon  # o la región que uses
-    env: python
+    region: oregon
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn bill.wsgi"
     envVars:
-      
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bill_db        # ← debe coincidir EXACTAMENTE con el nombre de abajo
+          property: connectionString
       - key: SECRET_KEY
         sync: false
       - key: DEBUG
@@ -20,11 +22,11 @@ services:
         value: "admin@example.com"
       - key: DJANGO_SUPERUSER_PASSWORD
         value: "il0ginS21"
-
-	healthCheckPath: /
-    autoDeploy: true
-    # Ejecutar tras cada despliegue
     afterDeployHook: |
       python manage.py migrate --noinput
       python initialize.py
 
+databases:
+  - name: bill_db              # ← este es el nombre real
+    databaseName: bill_django_db
+    region: oregon
