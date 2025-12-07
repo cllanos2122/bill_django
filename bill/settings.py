@@ -15,7 +15,7 @@ from decouple import config
 
 
 # Esta línea fuerza a cargar DATABASE_URL desde .env si existe
-os.environ.setdefault('DATABASE_URL', config('DATABASE_URL', default=''))
+#os.environ.setdefault('DATABASE_URL', config('DATABASE_URL', default=''))
 
 import dj_database_url
 #from pathlib import Path
@@ -113,9 +113,18 @@ WSGI_APPLICATION = 'bill.wsgi.application'
 #     )
 # }
 
+#DATABASES = {
+    #'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+#}
+
 DATABASES = {
-    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
 
 
 # Password validation
